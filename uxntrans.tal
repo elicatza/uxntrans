@@ -1,0 +1,52 @@
+|00 @System &vector $2 &expansion $2 &wst $1 &rst $1 &metadata $2 &r $2 &g $2 &b $2 &debug $1 &state $1
+|20 @Screen &vector $2 &width $2 &height $2 &auto $1 &pad $1 &x $2 &y $2 &addr $2 &pixel $1 &sprite $1
+
+|100
+
+@on-reset ( -> )
+    #5ff0 .System/r DEO2
+    #caf0 .System/g DEO2
+    #fbf0 .System/b DEO2
+
+    #0001
+    ( id* )
+    &while
+        draw-section
+        INC2 DUP2
+        #0004 LTH2 ?&while
+    POP2
+BRK
+
+@draw-section ( id* -: id* )
+    INC2k .Screen/height DEI2 #0005 DIV2 MUL2
+    SWP2
+    DUP2 .Screen/height DEI2 #0005 DIV2 MUL2
+    ROT2 SWP2
+
+    ( id* end* start* )
+    &while
+        DUP2 .Screen/y DEO2
+        ROT2 DUP2
+        ;trans-flag ADD2 LDA draw-row
+        ROT2 ROT2
+        INC2 GTH2k ?&while
+
+    POP2 POP2
+JMP2r
+
+@draw-row ( pixel -: )
+    DUP .Screen/width DEI2 #0000
+
+    ( pixel* width* x* )
+    &while
+        DUP2 .Screen/x DEO2
+        ROT2
+        .Screen/pixel DEO DUP
+        ROT2 ROT2
+        INC2 GTH2k ?&while
+
+    POP2 POP2 POP2
+JMP2r
+
+@trans-flag
+    00 01 02 01 00
